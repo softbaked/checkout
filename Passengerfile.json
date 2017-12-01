@@ -1,0 +1,13 @@
+{
+  "daemonize": false,
+  "concurrency_model": "thread",
+  "max_pool_size": 16,
+  "pool_idle_time": 1800,
+  "thread_count": 40,
+  "max_request_time": 3600,
+  "port": 443,
+  "ssl": true,
+  "ssl_certificate": ".ssl/wildcard.staging365.net.crt",
+  "ssl_certificate_key": ".ssl/wildcard.staging365.net.key",
+  "nginx_config_template": "nginx.conf.erb"
+}
