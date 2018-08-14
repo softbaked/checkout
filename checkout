@@ -82,7 +82,7 @@ DOMAIN=#{domain}
 
 print  `tput bold` + `tput setab 3` + " SETUP " + `tput sgr 0` + ' '
 puts   "Invoking the bootstrap script..."
-system "cd #{domain}; script/bootstrap" or exit
+system "cd #{domain}; script/bootstrap -c" or exit
 
 print  `tput bold` + `tput setab 3` + " SETUP " + `tput sgr 0` + ' '
 puts   "Reserving the Redis database..."
