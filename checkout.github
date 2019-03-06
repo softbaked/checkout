@@ -1,0 +1,89 @@
+#!/usr/local/rbenv/shims/ruby
+
+require 'fileutils'
+require 'redis'
+
+print  `tput bold` + `tput setab 4` + " INFO " + `tput sgr 0` + ' '
+puts   "This utility will checkout a new app instance on the staging server."
+puts
+
+if !File.exists? "#{ENV['HOME']}/.ssh/id_rsa"
+  print  `tput bold` + `tput setab 1` + " ERROR " + `tput sgr 0` + ' '
+  puts   "No GitHub credential detected"
+  print  `tput bold` + `tput setab 1` + " ERROR " + `tput sgr 0` + ' '
+  puts   "Please set up your GitHub SSH keys using these instructions:"
+  print  `tput bold` + `tput setab 1` + " ERROR " + `tput sgr 0` + ' '
+  puts   "https://help.github.com/articles/connecting-to-github-with-ssh/"
+  exit
+end
+
+if ARGV.length > 0
+  task, branch = ARGV.map(&:downcase)
+else
+  print  "What task are you working on? (Enter tXX) "
+  task = gets.chomp.downcase
+  print  "What branch have you published? (Enter branch name or leave blank) "
+  branch = gets.chomp.downcase
+  puts
+end
+
+domain = "#{task}.staging365.net"
+
+if Dir.exists?(domain)
+  print  "Remove existing work on this task? THIS CANNOT BE UNDONE. (y/n) "
+  exit   unless gets.chomp.downcase == 'y'
+  puts   "Removing old staging app..."
+  FileUtils.rm_rf domain
+end
+
+free_redis = -1
+0.upto(63) do |db|
+  redis = Redis.new(db: db)
+  bound = redis.get '_domain'
+  if !bound or bound == domain or !Dir.exists?(bound)
+    free_redis = db
+    break
+  end
+end
+
+if free_redis == -1
+  print `tput bold` + `tput setab 1` + " ERROR " + `tput sgr 0` + ' '
+  puts  "Maximum number of instances have been created. Please delete some old instances first."
+  exit
+end
+
+print  `tput bold` + `tput setab 4` + " FETCH " + `tput sgr 0` + ' '
+puts   "Cloning base repository from GitHub..."
+system "git clone git@github.com:softbaked/page365.git #{domain}" or exit
+
+if branch and branch.size > 0
+  print  `tput bold` + `tput setab 4` + " FETCH " + `tput sgr 0` + ' '
+  puts   "Checking out existing work on branch #{branch}..."
+  system "cd #{domain}; git checkout #{branch}" or exit
+else
+  print  `tput bold` + `tput setab 4` + " FETCH " + `tput sgr 0` + ' '
+  puts   "Creating branch #{task}..."
+  system "cd #{domain}; git checkout -b #{task}" or exit
+end
+
+print  `tput bold` + `tput setab 3` + " SETUP " + `tput sgr 0` + ' '
+puts   "Writing an instance config file..."
+File.write "#{domain}/.env", """
+DATABASE_URL=mysql2://root:@localhost/#{task}
+REDIS_URL=redis://localhost/#{free_redis}
+DOMAIN=#{domain}
+"""
+
+print  `tput bold` + `tput setab 3` + " SETUP " + `tput sgr 0` + ' '
+puts   "Invoking the bootstrap script..."
+system "cd #{domain}; script/bootstrap -c" or exit
+
+print  `tput bold` + `tput setab 3` + " SETUP " + `tput sgr 0` + ' '
+puts   "Reserving the Redis database..."
+Redis.new(db: free_redis).set '_domain', domain
+
+puts
+print  `tput bold` + `tput setab 2` + " DONE " + `tput sgr 0` + ' '
+puts   " Your instance is now accessible from: https://#{domain}"
+print  `tput bold` + `tput setab 2` + " DONE " + `tput sgr 0` + ' '
+puts   " Workers and jobs have to be run manually using `foreman start worker`"
