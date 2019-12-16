@@ -85,8 +85,10 @@ http {
 
     <% for app in @apps %>
     server {
+        <% app[:server_names].push('*.' + app[:server_names].first) %>
         <%= include_passenger_internal_template('server.erb', 8, true, binding) %>
         <%= include_passenger_internal_template('rails_asset_pipeline.erb', 8, false) %>
+        <% app[:server_names].pop %>
 
         ### BEGIN your own configuration options ###
         # This is a good place to put your own config

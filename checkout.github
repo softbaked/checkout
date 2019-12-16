@@ -68,10 +68,11 @@ end
 
 print  `tput bold` + `tput setab 3` + " SETUP " + `tput sgr 0` + ' '
 puts   "Writing an instance config file..."
-File.write "#{domain}/.env", """
+File.write "#{domain}/.env", """\
 DATABASE_URL=mysql2://root:@localhost/#{task}
 REDIS_URL=redis://localhost/#{free_redis}
 DOMAIN=#{domain}
+LOG_TO_FILE=1
 """
 
 print  `tput bold` + `tput setab 3` + " SETUP " + `tput sgr 0` + ' '
@@ -85,5 +86,7 @@ Redis.new(db: free_redis).set '_domain', domain
 puts
 print  `tput bold` + `tput setab 2` + " DONE " + `tput sgr 0` + ' '
 puts   " Your instance is now accessible from: https://#{domain}"
+print  `tput bold` + `tput setab 2` + " DONE " + `tput sgr 0` + ' '
+puts   " Don't forget to add OAuth URIs on facebook dev: https://#{domain}/auth/facebook/callback"
 print  `tput bold` + `tput setab 2` + " DONE " + `tput sgr 0` + ' '
 puts   " Workers and jobs have to be run manually using `foreman start worker`"
