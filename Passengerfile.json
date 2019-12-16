@@ -9,7 +9,7 @@
   "max_request_time": 300,
   "port": 443,
   "ssl": true,
-  "ssl_certificate": "/stage/.ssl/wildcard.staging365.net.crt",
-  "ssl_certificate_key": "/stage/.ssl/wildcard.staging365.net.key",
+  "ssl_certificate": ".ssl/wildcard.staging365.net.crt",
+  "ssl_certificate_key": ".ssl/wildcard.staging365.net.key",
   "nginx_config_template": "nginx.conf.erb"
 }
