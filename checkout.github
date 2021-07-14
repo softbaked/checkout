@@ -73,6 +73,7 @@ DATABASE_URL=mysql2://root:@localhost/#{task}
 REDIS_URL=redis://localhost/#{free_redis}
 DOMAIN=#{domain}
 LOG_TO_FILE=1
+ELASTICSEARCH_URL=https://root:whin1fent8KIND_vut@stagingsearch.page365.net
 """
 
 print  `tput bold` + `tput setab 3` + " SETUP " + `tput sgr 0` + ' '

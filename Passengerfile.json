@@ -1,7 +1,7 @@
 {
   "daemonize": false,
   "concurrency_model": "thread",
-  "max_pool_size": 3,
+  "max_pool_size": 20,
   "pool_idle_time": 1800,
   "max_preloader_idle_time": 1800,
   "min_instances": 0,
